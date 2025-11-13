@@ -13,6 +13,9 @@
         zoneId: 'mwuto3g5i',
     });
   </script>
+
+  <script id="aclib" type="text/javascript" src="//acscdn.com/script/aclib.js"></script>
+
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
   <style>
@@ -558,6 +561,103 @@
       flex-wrap: wrap;
     }
 
+    /* Season and Episode Selector */
+    .season-episode-selector {
+      margin: var(--spacing-md) 0;
+      padding: var(--spacing-md);
+      background: var(--background-elevated);
+      border-radius: var(--border-radius-sm);
+      display: none;
+    }
+
+    .selector-title {
+      font-size: 1.2rem;
+      margin-bottom: var(--spacing-sm);
+      color: var(--text-light);
+      font-weight: 600;
+    }
+
+    .selector-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: var(--spacing-sm);
+      max-height: 300px;
+      overflow-y: auto;
+      padding: 5px;
+    }
+
+    .season-card, .episode-card {
+      background: var(--background-card);
+      border-radius: var(--border-radius-sm);
+      padding: var(--spacing-sm);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+
+    .season-card:hover, .episode-card:hover {
+      border-color: var(--primary-color);
+      transform: translateY(-2px);
+    }
+
+    .season-card.active, .episode-card.active {
+      border-color: var(--primary-color);
+      background: rgba(229, 9, 20, 0.1);
+    }
+
+    .season-number, .episode-number {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 5px;
+    }
+
+    .episode-name {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .episode-airdate {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 5px;
+    }
+
+    .selector-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .selector-nav-btn {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: var(--border-radius-sm);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .selector-nav-btn:hover {
+      background: var(--primary-dark);
+    }
+
+    .selector-nav-btn:disabled {
+      background: var(--text-muted);
+      cursor: not-allowed;
+    }
+
+    .current-season {
+      font-weight: 600;
+      color: var(--text-light);
+    }
+
     .streaming-section {
       padding: var(--spacing-lg);
       border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -929,7 +1029,6 @@
       margin: var(--spacing-lg) 0;
     }
   </style>
-  <script id="aclib" type="text/javascript" src="//acscdn.com/script/aclib.js"></script>
 </head>
 
 <body>
@@ -1081,6 +1180,23 @@
               <i class="fas fa-share"></i> Share
             </button>
           </div>
+        </div>
+      </div>
+      
+      <!-- Season and Episode Selector (for TV series) -->
+      <div class="season-episode-selector" id="season-episode-selector">
+        <div class="selector-nav">
+          <button class="selector-nav-btn" id="prev-season-btn" onclick="changeSeason(-1)">
+            <i class="fas fa-chevron-left"></i> Previous Season
+          </button>
+          <div class="current-season" id="current-season-text">Season 1</div>
+          <button class="selector-nav-btn" id="next-season-btn" onclick="changeSeason(1)">
+            Next Season <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+        <div class="selector-title">Episodes</div>
+        <div class="selector-grid" id="episodes-grid">
+          <!-- Episodes will be loaded here -->
         </div>
       </div>
       
@@ -1267,6 +1383,10 @@
     // --- State Variables ---
     let currentItem = null;
     let currentTheme = 'dark';
+    let currentSeasons = [];
+    let currentSeasonNumber = 1;
+    let currentEpisodes = [];
+    let currentEpisodeNumber = 1;
 
     // --- Utility Functions ---
 
@@ -1347,6 +1467,129 @@
     function closeDisclaimerModal() {
       document.getElementById('disclaimer-modal').style.display = 'none';
       document.body.style.overflow = 'auto';
+    }
+
+    // --- TV Series Season/Episode Functions ---
+
+    /**
+     * Fetches TV series seasons and episodes
+     */
+    async function fetchTVSeasons(tvId) {
+      try {
+        const response = await fetch(
+          `${API_CONFIG.BASE_URL}/tv/${tvId}?api_key=${API_CONFIG.KEY}`
+        );
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        
+        const data = await response.json();
+        return data.seasons || [];
+      } catch (error) {
+        console.error(`Error fetching TV seasons:`, error);
+        return [];
+      }
+    }
+
+    /**
+     * Fetches episodes for a specific season
+     */
+    async function fetchSeasonEpisodes(tvId, seasonNumber) {
+      try {
+        const response = await fetch(
+          `${API_CONFIG.BASE_URL}/tv/${tvId}/season/${seasonNumber}?api_key=${API_CONFIG.KEY}`
+        );
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        
+        const data = await response.json();
+        return data.episodes || [];
+      } catch (error) {
+        console.error(`Error fetching season episodes:`, error);
+        return [];
+      }
+    }
+
+    /**
+     * Changes the current season
+     */
+    async function changeSeason(direction) {
+      if (!currentSeasons.length) return;
+      
+      const newSeasonIndex = currentSeasons.findIndex(s => s.season_number === currentSeasonNumber) + direction;
+      
+      if (newSeasonIndex >= 0 && newSeasonIndex < currentSeasons.length) {
+        currentSeasonNumber = currentSeasons[newSeasonIndex].season_number;
+        await loadSeasonEpisodes(currentItem.id, currentSeasonNumber);
+        updateSeasonNavigation();
+      }
+    }
+
+    /**
+     * Loads episodes for a season
+     */
+    async function loadSeasonEpisodes(tvId, seasonNumber) {
+      const episodes = await fetchSeasonEpisodes(tvId, seasonNumber);
+      currentEpisodes = episodes;
+      displayEpisodes(episodes);
+      document.getElementById('current-season-text').textContent = `Season ${seasonNumber}`;
+      
+      // Auto-select first episode
+      if (episodes.length > 0) {
+        selectEpisode(1);
+      }
+    }
+
+    /**
+     * Displays episodes in the selector
+     */
+    function displayEpisodes(episodes) {
+      const container = document.getElementById('episodes-grid');
+      container.innerHTML = '';
+      
+      episodes.forEach(episode => {
+        const episodeCard = document.createElement('div');
+        episodeCard.className = 'episode-card';
+        episodeCard.onclick = () => selectEpisode(episode.episode_number);
+        
+        episodeCard.innerHTML = `
+          <div class="episode-number">E${episode.episode_number}</div>
+          <div class="episode-name">${episode.name || 'Episode ' + episode.episode_number}</div>
+          <div class="episode-airdate">${formatDate(episode.air_date)}</div>
+        `;
+        
+        container.appendChild(episodeCard);
+      });
+    }
+
+    /**
+     * Selects an episode
+     */
+    function selectEpisode(episodeNumber) {
+      currentEpisodeNumber = episodeNumber;
+      
+      // Update UI
+      const episodeCards = document.querySelectorAll('.episode-card');
+      episodeCards.forEach(card => {
+        const episodeNum = parseInt(card.querySelector('.episode-number').textContent.replace('E', ''));
+        card.classList.toggle('active', episodeNum === episodeNumber);
+      });
+      
+      // Update video if it's a TV series
+      if (currentItem && (currentItem.media_type === 'tv' || currentItem.name)) {
+        changeServer();
+      }
+    }
+
+    /**
+     * Updates season navigation buttons
+     */
+    function updateSeasonNavigation() {
+      const prevBtn = document.getElementById('prev-season-btn');
+      const nextBtn = document.getElementById('next-season-btn');
+      
+      if (!currentSeasons.length) return;
+      
+      const currentIndex = currentSeasons.findIndex(s => s.season_number === currentSeasonNumber);
+      prevBtn.disabled = currentIndex === 0;
+      nextBtn.disabled = currentIndex === currentSeasons.length - 1;
     }
 
     // --- API Fetching Functions ---
@@ -1482,8 +1725,14 @@
     /**
      * Shows detailed modal for selected media item.
      */
-    function showDetails(item) {
+    async function showDetails(item) {
       currentItem = item;
+      
+      // Reset season/episode state
+      currentSeasons = [];
+      currentSeasonNumber = 1;
+      currentEpisodes = [];
+      currentEpisodeNumber = 1;
       
       // Set media details
       document.getElementById('modal-title').textContent = item.title || item.name;
@@ -1500,6 +1749,28 @@
         `${(item.vote_average / 2).toFixed(1)}/5`;
       document.getElementById('modal-date').textContent = 
         formatDate(item.release_date || item.first_air_date);
+      
+      // Handle TV series season/episode selector
+      const seasonEpisodeSelector = document.getElementById('season-episode-selector');
+      if (item.media_type === 'tv' || item.name) {
+        // It's a TV series
+        seasonEpisodeSelector.style.display = 'block';
+        
+        // Fetch seasons
+        currentSeasons = await fetchTVSeasons(item.id);
+        
+        // Filter out seasons with 0 episodes
+        currentSeasons = currentSeasons.filter(season => season.episode_count > 0 && season.season_number > 0);
+        
+        if (currentSeasons.length > 0) {
+          // Load first season episodes
+          await loadSeasonEpisodes(item.id, currentSeasons[0].season_number);
+          updateSeasonNavigation();
+        }
+      } else {
+        // It's a movie
+        seasonEpisodeSelector.style.display = 'none';
+      }
       
       // Reset server and load video
       document.getElementById('server').value = 'vidsrc.cc';
@@ -1521,11 +1792,23 @@
       let embedURL = "";
 
       if (server === "vidsrc.cc") {
-        embedURL = `https://vidsrc.cc/v2/embed/${type}/${currentItem.id}`;
+        if (type === "tv") {
+          embedURL = `https://vidsrc.cc/v2/embed/tv/${currentItem.id}/${currentSeasonNumber}/${currentEpisodeNumber}`;
+        } else {
+          embedURL = `https://vidsrc.cc/v2/embed/movie/${currentItem.id}`;
+        }
       } else if (server === "vidsrc.net") {
-        embedURL = `https://vidsrc.net/embed/${type}/?tmdb=${currentItem.id}`;
+        if (type === "tv") {
+          embedURL = `https://vidsrc.net/embed/tv/?tmdb=${currentItem.id}&season=${currentSeasonNumber}&episode=${currentEpisodeNumber}`;
+        } else {
+          embedURL = `https://vidsrc.net/embed/movie/?tmdb=${currentItem.id}`;
+        }
       } else if (server === "player.videasy.net") {
-        embedURL = `https://player.videasy.net/${type}/${currentItem.id}`;
+        if (type === "tv") {
+          embedURL = `https://player.videasy.net/tv/${currentItem.id}/${currentSeasonNumber}/${currentEpisodeNumber}`;
+        } else {
+          embedURL = `https://player.videasy.net/movie/${currentItem.id}`;
+        }
       }
 
       document.getElementById('modal-video').src = embedURL;
@@ -1729,6 +2012,8 @@
       window.scrollList = scrollList;
       window.openDisclaimerModal = openDisclaimerModal;
       window.closeDisclaimerModal = closeDisclaimerModal;
+      window.changeSeason = changeSeason;
+      window.selectEpisode = selectEpisode;
       window.playTrailer = () => alert('Trailer feature coming soon!');
       window.addToFavorites = () => alert('Added to favorites!');
       window.shareMedia = () => alert('Share feature coming soon!');
