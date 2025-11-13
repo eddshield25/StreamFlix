@@ -3,15 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="StreamFLix - Stream trending movies, TV shows, and anime for free">
-  <title>StreamFLix | Free Movies & TV Shows</title>
-  <link rel="stylesheet" href="css/home.css">
-  <link rel="preload" href="css/home.css" as="style">
-  <link rel="preload" href="js/home.js" as="script">
-  <link rel="manifest" href="manifest.json">
+  <meta name="description" content="StreamFlix - Stream trending movies, TV shows, and anime">
+  <title>StreamFlix | Movies & TV Shows</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-  <script async src="js/home.js"></script>
   <style>
     /* Custom Properties / Variables */
     :root {
@@ -848,6 +843,83 @@
         font-size: 2rem;
       }
     }
+
+    /* Disclaimer Modal Styles */
+    .disclaimer-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      padding: var(--spacing-md);
+    }
+
+    .disclaimer-content {
+      background: var(--background-card);
+      border-radius: var(--border-radius);
+      width: 100%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .disclaimer-header {
+      text-align: center;
+      margin-bottom: var(--spacing-lg);
+      border-bottom: 2px solid var(--primary-color);
+      padding: var(--spacing-lg);
+    }
+
+    .disclaimer-title {
+      color: var(--primary-color);
+      font-size: 2.5rem;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .disclaimer-body {
+      padding: var(--spacing-lg);
+    }
+
+    .disclaimer-section {
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .disclaimer-section h2 {
+      color: var(--primary-color);
+      border-left: 4px solid var(--primary-color);
+      padding-left: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .disclaimer-section p {
+      margin-bottom: var(--spacing-md);
+      color: var(--text-muted);
+    }
+
+    .disclaimer-list {
+      padding-left: var(--spacing-lg);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .disclaimer-list li {
+      margin-bottom: var(--spacing-md);
+      color: var(--text-muted);
+    }
+
+    .warning-box {
+      background: rgba(229, 9, 20, 0.1);
+      border: 1px solid var(--primary-color);
+      border-radius: 8px;
+      padding: var(--spacing-md);
+      margin: var(--spacing-lg) 0;
+    }
   </style>
 </head>
 
@@ -860,14 +932,14 @@
 
   <header class="navbar">
     <div class="nav-container">
-      <a href="index.html" class="logo-link" aria-label="Go to homepage">
+      <a href="#" class="logo-link" aria-label="Go to homepage">
         <div class="logo">
           <i class="fas fa-play-circle"></i>
-          <span>StreamFLix</span>
+          <span>StreamFlix</span>
         </div>
       </a>
       <nav class="nav-links">
-        <a href="index.html" aria-current="page" class="nav-link active">
+        <a href="#" aria-current="page" class="nav-link active">
           <i class="fas fa-home"></i> Home
         </a>
         <a href="#" class="nav-link">
@@ -897,8 +969,8 @@
     <section class="hero-banner" id="banner" role="banner">
       <div class="banner-overlay"></div>
       <div class="banner-content">
-        <h1 id="banner-title" class="banner-title">Welcome to StreamFLix</h1>
-        <p id="banner-description" class="banner-description">Discover thousands of movies and TV shows for free</p>
+        <h1 id="banner-title" class="banner-title">Welcome to StreamFlix</h1>
+        <p id="banner-description" class="banner-description">Discover thousands of movies and TV shows</p>
         <div class="banner-actions">
           <button class="btn btn-primary" onclick="openSearchModal()">
             <i class="fas fa-play"></i> Start Watching
@@ -1044,14 +1116,103 @@
     </div>
   </div>
 
+  <!-- Disclaimer Modal -->
+  <div class="disclaimer-modal" id="disclaimer-modal" role="dialog" aria-modal="true">
+    <div class="disclaimer-content">
+      <button class="close-btn" onclick="closeDisclaimerModal()" aria-label="Close disclaimer">
+        <i class="fas fa-times"></i>
+      </button>
+      <div class="disclaimer-header">
+        <h1 class="disclaimer-title">StreamFlix Disclaimer</h1>
+        <p>Important Legal Information for Users</p>
+      </div>
+      
+      <div class="disclaimer-body">
+        <div class="warning-box">
+          <strong>⚠️ IMPORTANT NOTICE:</strong> StreamFlix is an educational demonstration project and should not be used for actual content streaming.
+        </div>
+
+        <div class="disclaimer-section">
+          <h2>1. Educational Purpose Only</h2>
+          <p>StreamFlix is created solely for educational and demonstration purposes. This platform is designed to showcase web development skills, API integration, and user interface design. It is not intended for commercial use or actual content distribution.</p>
+        </div>
+
+        <div class="disclaimer-section">
+          <h2>2. Content Sources</h2>
+          <p>The movie and TV show information displayed on StreamFlix is sourced from:</p>
+          <ul class="disclaimer-list">
+            <li><strong>The Movie Database (TMDB):</strong> We use TMDB's API to fetch movie metadata, posters, and descriptions</li>
+            <li><strong>Third-party Streaming Services:</strong> Embedded players from external sources may be displayed for demonstration</li>
+          </ul>
+          <p>StreamFlix does not host, store, or distribute any video content on its servers.</p>
+        </div>
+
+        <div class="disclaimer-section">
+          <h2>3. Copyright Notice</h2>
+          <p>StreamFlix respects intellectual property rights and copyright laws:</p>
+          <ul class="disclaimer-list">
+            <li>All movie posters, descriptions, and metadata are property of their respective copyright holders</li>
+            <li>Movie titles, TV show names, and related content are trademarks of their respective owners</li>
+            <li>This project uses TMDB API but is not endorsed or certified by TMDB</li>
+          </ul>
+        </div>
+
+        <div class="disclaimer-section">
+          <h2>4. No Actual Streaming Service</h2>
+          <p>Please note that:</p>
+          <ul class="disclaimer-list">
+            <li>StreamFlix does not provide actual streaming capabilities</li>
+            <li>Embedded video players are for demonstration purposes only</li>
+            <li>No video content is served from StreamFlix servers</li>
+            <li>This is a front-end demonstration project</li>
+          </ul>
+        </div>
+
+        <div class="disclaimer-section">
+          <h2>5. User Responsibility</h2>
+          <p>By using StreamFlix, you acknowledge and agree that:</p>
+          <ul class="disclaimer-list">
+            <li>You are using this platform for educational purposes only</li>
+            <li>You understand this is not a real streaming service</li>
+            <li>You will respect copyright laws in your jurisdiction</li>
+            <li>You are responsible for ensuring your use complies with local laws</li>
+          </ul>
+        </div>
+
+        <div class="disclaimer-section">
+          <h2>6. Limitation of Liability</h2>
+          <p>StreamFlix and its creators are not responsible for:</p>
+          <ul class="disclaimer-list">
+            <li>Any unauthorized use of copyrighted content</li>
+            <li>Functionality of third-party embedded players</li>
+            <li>Content accuracy or availability from external APIs</li>
+            <li>Any legal issues arising from misuse of this platform</li>
+          </ul>
+        </div>
+
+        <div class="disclaimer-section">
+          <h2>7. Project Information</h2>
+          <p><strong>Project Type:</strong> Educational/Demonstration</p>
+          <p><strong>Technologies Used:</strong> HTML5, CSS3, JavaScript, TMDB API</p>
+          <p><strong>Purpose:</strong> Showcase front-end development skills</p>
+          <p><strong>Status:</strong> Non-commercial, open-source demonstration</p>
+        </div>
+
+        <div class="warning-box">
+          <strong>🚫 LEGAL COMPLIANCE:</strong> Users are responsible for ensuring their use of this platform complies with all applicable laws in their jurisdiction. The creators of StreamFlix assume no liability for unauthorized use.
+        </div>
+      </div>
+    </div>
+  </div>
+
   <footer class="footer">
     <div class="footer-content">
       <div class="footer-brand">
         <div class="logo">
           <i class="fas fa-play-circle"></i>
-          <span>StreamFLix</span>
+          <span>StreamFlix</span>
         </div>
-        <p class="footer-tagline">Your gateway to unlimited free entertainment</p>
+        <p class="footer-tagline">Your gateway to unlimited entertainment</p>
       </div>
       <div class="footer-links-grid">
         <div class="footer-column">
@@ -1069,14 +1230,15 @@
         </div>
         <div class="footer-column">
           <h4>Legal</h4>
+          <a href="#" onclick="openDisclaimerModal()">Disclaimer</a>
           <a href="#">Privacy Policy</a>
           <a href="#">Terms of Service</a>
-          <a href="#">Disclaimer</a>
         </div>
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; 2025 StreamFLix. All rights reserved.</p>
+      <p>&copy; 2025 StreamFlix. This is a demo project for educational purposes.</p>
+      <p>This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
     </div>
   </footer>
 
@@ -1162,6 +1324,22 @@
       container.scrollBy({ left: distance, behavior: 'smooth' });
     }
 
+    /**
+     * Opens the disclaimer modal
+     */
+    function openDisclaimerModal() {
+      document.getElementById('disclaimer-modal').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    /**
+     * Closes the disclaimer modal
+     */
+    function closeDisclaimerModal() {
+      document.getElementById('disclaimer-modal').style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+
     // --- API Fetching Functions ---
 
     /**
@@ -1224,10 +1402,10 @@
       
       if (item && item.backdrop_path) {
         bannerElement.style.backgroundImage = `url(${API_CONFIG.IMG_URL}${item.backdrop_path})`;
-        titleElement.textContent = item.title || item.name || 'StreamFLix';
+        titleElement.textContent = item.title || item.name || 'StreamFlix';
         descElement.textContent = item.overview 
           ? (item.overview.substring(0, 150) + '...') 
-          : 'Discover thousands of movies and TV shows for free';
+          : 'Discover thousands of movies and TV shows';
       }
     }
 
@@ -1450,9 +1628,11 @@
       document.addEventListener('click', (e) => {
         const modal = document.getElementById('modal');
         const searchModal = document.getElementById('search-modal');
+        const disclaimerModal = document.getElementById('disclaimer-modal');
         
         if (e.target === modal) closeModal();
         if (e.target === searchModal) closeSearchModal();
+        if (e.target === disclaimerModal) closeDisclaimerModal();
       });
 
       // Close modals on Escape key
@@ -1460,6 +1640,7 @@
         if (e.key === 'Escape') {
           closeModal();
           closeSearchModal();
+          closeDisclaimerModal();
         }
       });
 
@@ -1537,6 +1718,8 @@
       window.scrollToTop = scrollToTop;
       window.scrollToContent = scrollToContent;
       window.scrollList = scrollList;
+      window.openDisclaimerModal = openDisclaimerModal;
+      window.closeDisclaimerModal = closeDisclaimerModal;
       window.playTrailer = () => alert('Trailer feature coming soon!');
       window.addToFavorites = () => alert('Added to favorites!');
       window.shareMedia = () => alert('Share feature coming soon!');
