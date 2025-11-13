@@ -13,9 +13,7 @@
         zoneId: 'mwuto3g5i',
     });
   </script>
-
-  <script id="aclib" type="text/javascript" src="//acscdn.com/script/aclib.js"></script>
-
+<script id="aclib" type="text/javascript" src="//acscdn.com/script/aclib.js"></script>
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
   <style>
@@ -579,52 +577,100 @@
 
     .selector-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: var(--spacing-sm);
-      max-height: 300px;
+      max-height: 400px;
       overflow-y: auto;
       padding: 5px;
     }
 
-    .season-card, .episode-card {
+    .episode-card {
       background: var(--background-card);
       border-radius: var(--border-radius-sm);
-      padding: var(--spacing-sm);
-      text-align: center;
+      overflow: hidden;
       cursor: pointer;
       transition: all 0.3s ease;
       border: 2px solid transparent;
+      position: relative;
     }
 
-    .season-card:hover, .episode-card:hover {
+    .episode-card:hover {
       border-color: var(--primary-color);
-      transform: translateY(-2px);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
     }
 
-    .season-card.active, .episode-card.active {
+    .episode-card.active {
       border-color: var(--primary-color);
-      background: rgba(229, 9, 20, 0.1);
+      box-shadow: 0 0 0 2px var(--primary-color);
     }
 
-    .season-number, .episode-number {
+    .episode-thumbnail {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+      background: linear-gradient(135deg, #333, #555);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+    }
+
+    .episode-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .episode-info {
+      padding: var(--spacing-sm);
+    }
+
+    .episode-number {
       font-weight: 600;
-      font-size: 1.1rem;
-      margin-bottom: 5px;
+      font-size: 0.9rem;
+      color: var(--primary-color);
+      margin-bottom: 4px;
     }
 
     .episode-name {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-light);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 4px;
+      line-height: 1.3;
+    }
+
+    .episode-overview {
+      font-size: 0.75rem;
       color: var(--text-muted);
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      margin-bottom: 4px;
+      line-height: 1.3;
     }
 
     .episode-airdate {
-      font-size: 0.8rem;
+      font-size: 0.7rem;
       color: var(--text-muted);
-      margin-top: 5px;
+    }
+
+    .episode-rating {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      font-weight: 600;
     }
 
     .selector-nav {
@@ -642,6 +688,7 @@
       border-radius: var(--border-radius-sm);
       cursor: pointer;
       transition: all 0.3s ease;
+      font-size: 0.9rem;
     }
 
     .selector-nav-btn:hover {
@@ -656,6 +703,7 @@
     .current-season {
       font-weight: 600;
       color: var(--text-light);
+      font-size: 1rem;
     }
 
     .streaming-section {
@@ -866,6 +914,10 @@
       .banner-title {
         font-size: 3rem;
       }
+      
+      .selector-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      }
     }
 
     @media (max-width: 768px) {
@@ -915,6 +967,10 @@
         text-align: center;
       }
       
+      .selector-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      }
+      
       .footer-content {
         grid-template-columns: 1fr;
         gap: var(--spacing-lg);
@@ -949,6 +1005,14 @@
       
       .banner-title {
         font-size: 2rem;
+      }
+      
+      .selector-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      }
+      
+      .episode-thumbnail {
+        height: 80px;
       }
     }
 
@@ -1377,7 +1441,8 @@
     const API_CONFIG = {
       KEY: '420dd26414b8bcb319a5d49051b6ac25',
       BASE_URL: 'https://api.themoviedb.org/3',
-      IMG_URL: 'https://image.tmdb.org/t/p/original',
+      IMG_URL: 'https://image.tmdb.org/t/p/w500', // Using w500 for episode thumbnails (better size)
+      IMG_ORIGINAL: 'https://image.tmdb.org/t/p/original',
     };
 
     // --- State Variables ---
@@ -1538,21 +1603,51 @@
     }
 
     /**
-     * Displays episodes in the selector
+     * Displays episodes in the selector with thumbnails
      */
     function displayEpisodes(episodes) {
       const container = document.getElementById('episodes-grid');
       container.innerHTML = '';
       
+      if (episodes.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <i class="fas fa-tv"></i>
+            <p>No episodes available for this season</p>
+          </div>
+        `;
+        return;
+      }
+      
       episodes.forEach(episode => {
         const episodeCard = document.createElement('div');
         episodeCard.className = 'episode-card';
+        if (episode.episode_number === currentEpisodeNumber) {
+          episodeCard.classList.add('active');
+        }
         episodeCard.onclick = () => selectEpisode(episode.episode_number);
         
+        // Use episode still if available, otherwise use a placeholder
+        const thumbnailUrl = episode.still_path 
+          ? `${API_CONFIG.IMG_URL}${episode.still_path}`
+          : null;
+        
+        const rating = episode.vote_average ? episode.vote_average.toFixed(1) : 'N/A';
+        
         episodeCard.innerHTML = `
-          <div class="episode-number">E${episode.episode_number}</div>
-          <div class="episode-name">${episode.name || 'Episode ' + episode.episode_number}</div>
-          <div class="episode-airdate">${formatDate(episode.air_date)}</div>
+          <div class="episode-thumbnail">
+            ${thumbnailUrl 
+              ? `<img src="${thumbnailUrl}" alt="${episode.name || 'Episode ' + episode.episode_number}" loading="lazy" />`
+              : `<i class="fas fa-play-circle" style="font-size: 2rem;"></i>`
+            }
+            ${rating !== 'N/A' ? `<div class="episode-rating">${rating}</div>` : ''}
+          </div>
+          <div class="episode-info">
+            <div class="episode-number">Episode ${episode.episode_number}</div>
+            <div class="episode-name">${episode.name || 'Episode ' + episode.episode_number}</div>
+            ${episode.overview ? `<div class="episode-overview">${episode.overview}</div>` : ''}
+            <div class="episode-airdate">${formatDate(episode.air_date)}</div>
+          </div>
         `;
         
         container.appendChild(episodeCard);
@@ -1568,7 +1663,8 @@
       // Update UI
       const episodeCards = document.querySelectorAll('.episode-card');
       episodeCards.forEach(card => {
-        const episodeNum = parseInt(card.querySelector('.episode-number').textContent.replace('E', ''));
+        const episodeNumText = card.querySelector('.episode-number').textContent;
+        const episodeNum = parseInt(episodeNumText.replace('Episode ', ''));
         card.classList.toggle('active', episodeNum === episodeNumber);
       });
       
@@ -1653,7 +1749,7 @@
       const descElement = document.getElementById('banner-description');
       
       if (item && item.backdrop_path) {
-        bannerElement.style.backgroundImage = `url(${API_CONFIG.IMG_URL}${item.backdrop_path})`;
+        bannerElement.style.backgroundImage = `url(${API_CONFIG.IMG_ORIGINAL}${item.backdrop_path})`;
         titleElement.textContent = item.title || item.name || 'StreamFlix';
         descElement.textContent = item.overview 
           ? (item.overview.substring(0, 150) + '...') 
@@ -1739,7 +1835,7 @@
       document.getElementById('modal-description').textContent = 
         item.overview || 'No description available.';
       document.getElementById('modal-image').src = 
-        `${API_CONFIG.IMG_URL}${item.poster_path}`;
+        `${API_CONFIG.IMG_ORIGINAL}${item.poster_path}`;
       document.getElementById('modal-image').alt = 
         `Poster for ${item.title || item.name}`;
       
@@ -1766,6 +1862,14 @@
           // Load first season episodes
           await loadSeasonEpisodes(item.id, currentSeasons[0].season_number);
           updateSeasonNavigation();
+        } else {
+          // No seasons available
+          seasonEpisodeSelector.innerHTML = `
+            <div class="empty-state">
+              <i class="fas fa-tv"></i>
+              <p>No seasons available for this series</p>
+            </div>
+          `;
         }
       } else {
         // It's a movie
