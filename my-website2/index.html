@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="FreeFlix - Stream trending movies, TV shows, and anime for free">
-  <title>FreeFlix | Free Movies & TV Shows</title>
+  <meta name="description" content="StreamFLix - Stream trending movies, TV shows, and anime for free">
+  <title>StreamFLix | Free Movies & TV Shows</title>
   <link rel="stylesheet" href="css/home.css">
   <link rel="preload" href="css/home.css" as="style">
   <link rel="preload" href="js/home.js" as="script">
@@ -863,7 +863,7 @@
       <a href="index.html" class="logo-link" aria-label="Go to homepage">
         <div class="logo">
           <i class="fas fa-play-circle"></i>
-          <span>FreeFlix</span>
+          <span>StreamFLix</span>
         </div>
       </a>
       <nav class="nav-links">
@@ -897,7 +897,7 @@
     <section class="hero-banner" id="banner" role="banner">
       <div class="banner-overlay"></div>
       <div class="banner-content">
-        <h1 id="banner-title" class="banner-title">Welcome to FreeFlix</h1>
+        <h1 id="banner-title" class="banner-title">Welcome to StreamFLix</h1>
         <p id="banner-description" class="banner-description">Discover thousands of movies and TV shows for free</p>
         <div class="banner-actions">
           <button class="btn btn-primary" onclick="openSearchModal()">
@@ -1049,7 +1049,7 @@
       <div class="footer-brand">
         <div class="logo">
           <i class="fas fa-play-circle"></i>
-          <span>FreeFlix</span>
+          <span>StreamFLix</span>
         </div>
         <p class="footer-tagline">Your gateway to unlimited free entertainment</p>
       </div>
@@ -1076,7 +1076,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; 2025 FreeFlix. This is a demo project for educational purposes.</p>
+      <p>&copy; 2025 StreamFLix. This is a demo project for educational purposes.</p>
     </div>
   </footer>
 
@@ -1224,7 +1224,7 @@
       
       if (item && item.backdrop_path) {
         bannerElement.style.backgroundImage = `url(${API_CONFIG.IMG_URL}${item.backdrop_path})`;
-        titleElement.textContent = item.title || item.name || 'FreeFlix';
+        titleElement.textContent = item.title || item.name || 'StreamFLix';
         descElement.textContent = item.overview 
           ? (item.overview.substring(0, 150) + '...') 
           : 'Discover thousands of movies and TV shows for free';
