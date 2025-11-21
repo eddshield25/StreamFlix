@@ -1393,10 +1393,13 @@ body {
 }
 
 .banner-container {
+    width: 100%;
+    background-color: #f8f9fa;
+    padding: 2rem 0;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
+    border-top: 1px solid #e9ecef;
 }
 
 .banner-link {
