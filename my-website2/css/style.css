@@ -1860,7 +1860,7 @@ body {
     align-items: flex-start;
     gap: 4px;
   }
-}
+
 
 .banner-container {
             width: 100%;
@@ -1889,3 +1889,4 @@ body {
             
             .content-grid {
                 grid-template-columns: 1fr;
+ }
