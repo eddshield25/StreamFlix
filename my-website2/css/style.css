@@ -1392,6 +1392,23 @@ body {
   font-size: 0.9rem;
 }
 
+.banner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.banner-link {
+    display: block;
+    text-align: center;
+}
+
+.banner-img {
+    border-radius: 5px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
 /* Back to Top */
 .back-to-top {
   position: fixed;
